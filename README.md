@@ -2,54 +2,56 @@
 
 A very simple socket-based chat application built in Ruby.
 
-## Dev notes
+## Design
 
-### Feature list
+The program design loosely follows a [publish/subscribe pattern](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) whereby one or more **clients** establish a connection to a central **server**. Upon establishing a connection, clients can send messages to the server, which are then broadcast to any and all connected clients listening on the same channel.
 
-- Server with standard protocol for message passing
-- Server tracks list of connected clients
-- Client sign in
-- Client can send broadcast messages to all other connected clients
-- Client can send specific messages to other clients
+Something like what is illustrated in this beautiful diagram:
 
-### Server interface
+![server-client diagram](http://f.cl.ly/items/3o3O3b2y311t2z3Q0C0F/jw-1019-jxta1.gif)
 
-```ruby
-require 'pneumatic'
+Got it? Good.
 
-# Create a new server
-server = Pneumatic::Server.new(port: 7070)
+## Usage
 
-# Start the server
-server.start
+Two binary files are provided: one to run the chat server, and one to run a client session.
 
-# List the connected clients
-server.clients
+### Server
 
-# Deliver a message
-server.message(to: <CLIENT>, from: <CLIENT>, content: <CONTENT>)
+To run the server, execute `bin/server` from the app's root directory.
 
-# Broadcast a message
-server.broadcast(content: <CONTENT>)
+```bash
+$ bin/server
+
+Simple Chat server is running.
+Listening for connections on HOSTNAME:PORT...
 ```
 
-### Client interface
+It also accepts options to specify the **hostname** and **port**.
 
-```ruby
-require 'pneumatic'
+```bash
+$ bin/server -h my_computer.local -p 7777
 
-# Create a new client
-client = Pneumatic::Client.new(server: 'server-address.local', port: 7070)
-
-# Sign in as a user
-client.sign_in(username: 'murdoch')
-
-# Show other connected users
-client.neighbors
-
-# Send a message to a specific user
-client.message(to: 'verne', content: "Hey buddy, how's the book coming")
-
-# Broadcast a message to all users on the network
-client.broadcast(content: "Everybody look at me!")
+Simple Chat server is running.
+Listening for connections on my_computer.local:7777...
 ```
+
+### Client
+
+To start a client session, execute `bin/client` from the app's root directory.
+
+```bash
+$ bin/client
+
+Welcome! There are N people online.
+```
+
+In addition to specifying the hostname and port to connect to, you can also provide the client with a **name**, which will be used to identify the client.
+
+```bash
+$ bin/client -n my name -h my_computer.local -p 7777
+
+Welcome! There are N people online.
+```
+
+Thus, when another client connects to the same server, messages are prefixed with the sender's name.
