@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require File.expand_path('../../config.rb', __FILE__)
+
+opts = SimpleChat::CLIParser.parse(ARGV)
+
+SimpleChat::Server.new(opts).start
