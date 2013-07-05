@@ -1,4 +1,6 @@
 module SimpleChat
+  EXIT_OR_QUIT = /\A(\[.+\]\s+)?(exit|quit)\z/
+
   module CLIParser
     def self.parse(args)
       args = args.join(' ')

@@ -48,12 +48,16 @@ module SimpleChat
 
         loop do
           message = client.gets.chomp
-          break if message == 'quit'
-          if message
+          # @logger.p message
+          if message =~ EXIT_OR_QUIT
+            break
+          elsif message
             @logger.puts("Message from #{client}: #{message}")
             respond_to_all(:message => message, :from => client)
           end
         end
+
+        @logger.puts("Client #{client} has disconnected.")
       end
     end
 
