@@ -7,7 +7,7 @@ module SimpleChat
         :handle   => parse_handle(args),
         :hostname => args[/-h ([\w\.]+)/, 1],
         :port     => args[/-p (\d+)/, 1]
-      }
+      }.delete_if { |k, v| v.nil? }
     end
 
     def self.parse_handle(str)
@@ -19,7 +19,7 @@ module SimpleChat
   module TimeOutHelper
     require 'timeout'
     
-    def quiet_timeout(seconds)
+    def self.quiet_timeout(seconds)
       Timeout::timeout(seconds) {
         yield
       }

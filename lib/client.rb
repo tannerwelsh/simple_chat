@@ -1,7 +1,5 @@
 module SimpleChat
   class Client
-    include TimeOutHelper
-
     attr_reader :server, :handle
     private :server
 
@@ -14,26 +12,36 @@ module SimpleChat
 
     def start
       loop do
-        response = nil
-
-        quiet_timeout(1) {
-          message = server.gets.chomp
-          
-          if message =~ /\A\[/
-            message = message.orange
-          else
-            message = message.blue
-          end
-
-          STDOUT.puts(message)
-        }
-
-        quiet_timeout(1) {
-          response = STDIN.gets.chomp
-          exit if response =~ /(exit|quit)/
-          server.puts("[#{handle}] #{response}")
-        }
+        listen
+        respond
       end
+    end
+
+    def listen(delay = 1)
+      TimeOutHelper.quiet_timeout(delay) do
+        message = server.gets.chomp
+        STDOUT.puts(format_message(message))
+      end
+    end
+
+    def respond(delay = 1)
+      TimeOutHelper.quiet_timeout(delay) do
+        response = STDIN.gets.chomp
+        exit if response =~ /\A(exit|quit)\z/
+        server.puts(format_response(response))
+      end
+    end
+
+    def format_message(message)
+      if message =~ /\A\[/
+        message.orange
+      else
+        message.blue
+      end
+    end
+
+    def format_response(response)
+      "[#{handle}] #{response}"
     end
   end
 end
