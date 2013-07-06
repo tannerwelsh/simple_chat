@@ -14,7 +14,9 @@ module SimpleChat
       # TODO: block new input if user is typing (smarter resource management)
       loop do
         listen
-        respond
+        response = get_response
+
+        exit if response && response =~ EXIT_OR_QUIT
       end
     end
 
@@ -25,20 +27,16 @@ module SimpleChat
       end
     end
 
-    def respond(delay = 0.5)
+    def get_response(delay = 0.5)
       TimeOutHelper.quiet_timeout(delay) do
         response = STDIN.gets.chomp
         server.puts(format_response(response))
-        exit if response =~ EXIT_OR_QUIT
+        return response
       end
     end
 
     def format_message(message)
-      if message =~ /\A\[/
-        message.orange
-      else
-        message.blue
-      end
+      message =~ /\A\[/ ? message.orange : message.blue
     end
 
     def format_response(response)
