@@ -3,8 +3,8 @@ module SimpleChat
   end
 
   class Server
-    attr_reader :socket
-    private :socket
+    attr_reader :logger, :socket, :clients
+    private :socket, :clients
 
     def initialize(opts = {})
       @hostname = opts.fetch(:hostname) { DEFAULTS[:hostname] }
@@ -15,62 +15,51 @@ module SimpleChat
     end
 
     def start
-      @logger.puts("Simple Chat server is running.")
-      @logger.puts("Listening for connections on #{@hostname}:#{@port}...")
+      logger.puts("Simple Chat server is running.")
+      logger.puts("Listening for connections on #{@hostname}:#{@port}")
 
       loop do
         if client = accept_client
-          @clients << client
-          connections << respond_to_client(client)
+          clients << client
+          respond_to_client(client)
         end
       end
     end
 
-    def stop
-      connections.each(&:kill)
-      @logger.puts("closed.")
-      @logger.close
-    end
-
-    def respond_to_all(opts = {})
+    def send_to_all(opts = {})
       message = opts.fetch(:message)
       from    = opts.fetch(:from)
 
-      @clients.each { |client| client.puts(message) unless client == from }
+      clients.each { |client| client.puts(message) unless client == from }
     end
 
     def respond_to_client(client_connection)
       Thread.new(client_connection) do |client|
-        @logger.puts("New connection with #{client}...")
-        @logger.puts("Clients: #{@clients}")
+        logger.puts("New connection with #{client}")
+        logger.puts("Clients: #{clients}")
 
-        client.puts("Welcome! There are #{@clients.count} people online.")
+        client.puts("Welcome! There are #{clients.count} people online.")
 
         loop do
           message = client.gets.chomp
-          # @logger.p message
           if message =~ EXIT_OR_QUIT
             break
           elsif message
-            @logger.puts("Message from #{client}: #{message}")
-            respond_to_all(:message => message, :from => client)
+            logger.puts("Message from #{client}: #{message}")
+            send_to_all(:message => message, :from => client)
           end
         end
 
-        @logger.puts("Client #{client} has disconnected.")
+        logger.puts("Client #{client} has disconnected.")
       end
     end
 
     def can_connect?
-      !!(socket)
+      !!socket
     end
 
     def accept_client
       can_connect? ? socket.accept : raise(ClosedServerError, "The server is not accepting new connections.")
-    end
-
-    def connections
-      @connections ||= []
     end
   end
 end
