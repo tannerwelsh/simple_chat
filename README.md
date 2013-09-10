@@ -14,7 +14,7 @@ Got it? Good.
 
 ## Usage
 
-Two binary files are provided: one to run the chat server, and one to run a client session.
+Two executable files are provided: one to run the chat server, and one to run a client session.
 
 ### Server
 
