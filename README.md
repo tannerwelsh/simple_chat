@@ -1,6 +1,6 @@
 # SimpleChat
 
-A very simple socket-based chat application built in Ruby.
+A very simple chat application built with Ruby's Socket API.
 
 ## Design
 
